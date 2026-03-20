@@ -221,15 +221,8 @@ No Postman, envie:
 ---
 
 # Collection do Postman
-
-## O que entregar:
-
-* Collection exportada (.json)
-* Com:
-
-  * GET /produtos
-  * GET /produtos/:id
-  * POST /produtos
+  **Professor meu arquivo Postman, no estava reconhecendo aqui no git, por coloquei o link da minha workspace, o restante esta documentado**
+  * POST /produtos](https://marcosgotardo-920b3739-4205019.postman.co/workspace/MARCOS-GOTARDO-AGUILHERA's-Work~ba7d1ea1-86a3-46c2-8682-7610be597a30/collection/53346952-d3da2dbf-db2d-4c59-a6b0-ab0d3cbefc94?action=share&creator=53346952)
 
 
 
