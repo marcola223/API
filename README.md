@@ -1,12 +1,12 @@
-# 🚀 API - Gerenciamento de Produtos
+# API - Gerenciamento de Produtos
 
-## 📌 Sobre o Projeto
+## Sobre o Projeto
 
 Esta API REST permite o gerenciamento de produtos, possibilitando operações de cadastro e consulta. Os dados são armazenados em memória, sendo ideal para aprendizado.
 
 ---
 
-# 📝 Documentação dos Endpoints
+# Documentação dos Endpoints
 
 ## 🔹 1. Listar produtos
 
@@ -14,7 +14,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 * **URL:** `/produtos`
 * **Body:** ❌ Não possui
 
-### ✅ Resposta:
+### Resposta:
 
 ```json
 [
@@ -35,7 +35,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 * **URL:** `/produtos/:id`
 * **Body:** ❌ Não possui
 
-### ✅ Resposta:
+### Resposta:
 
 ```json
 {
@@ -56,7 +56,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 
 ---
 
-## 🔹 3. Criar produto
+##  3. Criar produto
 
 * **Método:** POST
 * **URL:** `/produtos`
@@ -71,7 +71,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 }
 ```
 
-### ✅ Resposta:
+###  Resposta:
 
 ```json
 {
@@ -84,9 +84,9 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 
 ---
 
-# 📮 Exemplos no Postman
+#  Exemplos no Postman
 
-## ➕ POST (Criar produto)
+##  POST (Criar produto)
 
 * URL: `http://localhost:3000/produtos`
 * Body:
@@ -101,39 +101,21 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 
 ---
 
-## 📦 GET (Listar)
+## GET (Listar)
 
 * URL: `http://localhost:3000/produtos`
 
 ---
 
-## 🔍 GET por ID
+## GET por ID
 
 * URL: `http://localhost:3000/produtos/1`
 
 ---
 
-# 📸 Capturas de Tela
+# Validações Implementadas
 
-📌 Adicione prints do Postman:
-
-* GET funcionando
-* POST funcionando
-* Erro de validação
-
-Exemplo:
-
-```
-/images/postman-get.png
-/images/postman-post.png
-/images/postman-erro.png
-```
-
----
-
-# 🛡️ Validações Implementadas
-
-## ✔️ Campos obrigatórios
+## Campos obrigatórios
 
 * nome
 * preco
@@ -149,7 +131,7 @@ Erro:
 
 ---
 
-## ✔️ Tipo de dados
+## Tipo de dados
 
 * preco deve ser número
 * nome deve ser texto
@@ -164,15 +146,15 @@ Erro:
 
 ---
 
-## ✔️ Validação de ID
+##  Validação de ID
 
 * Verifica se existe antes de buscar
 
 ---
 
-# 💻 Implementação da API
+# Implementação da API
 
-## ✔️ Endpoint POST funcionando
+##  Endpoint POST funcionando
 
 Exemplo em Express:
 
@@ -238,9 +220,9 @@ No Postman, envie:
 
 ---
 
-# 📁 Collection do Postman
+# Collection do Postman
 
-## ✔️ O que entregar:
+## O que entregar:
 
 * Collection exportada (.json)
 * Com:
@@ -249,13 +231,7 @@ No Postman, envie:
   * GET /produtos/:id
   * POST /produtos
 
-📌 No Postman:
 
-1. Clique em **Collections**
-2. Export
-3. Salve como JSON
-
----
 
 # 👨‍💻 Autor
 
