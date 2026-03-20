@@ -8,7 +8,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 
 # Documentação dos Endpoints
 
-## 🔹 1. Listar produtos
+## 1. Listar produtos
 
 * **Método:** GET
 * **URL:** `/produtos`
@@ -29,7 +29,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 
 ---
 
-## 🔹 2. Buscar produto por ID
+## 2. Buscar produto por ID
 
 * **Método:** GET
 * **URL:** `/produtos/:id`
@@ -61,7 +61,7 @@ Esta API REST permite o gerenciamento de produtos, possibilitando operações de
 * **Método:** POST
 * **URL:** `/produtos`
 
-### 📥 Body:
+### Body:
 
 ```json
 {
@@ -221,7 +221,7 @@ No Postman, envie:
 ---
 
 # Collection do Postman
-  **Professor meu arquivo Postman, no estava reconhecendo aqui no git, por coloquei o link da minha workspace, o restante esta documentado**
+  **Professor meu arquivo Postman, não estava reconhecendo aqui no git, por coloquei o link da minha workspace, o restante esta documentado**
   * POST /produtos](https://marcosgotardo-920b3739-4205019.postman.co/workspace/MARCOS-GOTARDO-AGUILHERA's-Work~ba7d1ea1-86a3-46c2-8682-7610be597a30/collection/53346952-d3da2dbf-db2d-4c59-a6b0-ab0d3cbefc94?action=share&creator=53346952)
 
 
