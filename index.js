@@ -1,155 +1,126 @@
 const express = require('express');
 const app = express();
-const PORT = 80;
+const PORT = 3000; // Alterado para 3000 para evitar conflitos comuns na porta 80
 
 app.use(express.json());
 
-// Dados em memória
-let produtos = [
-    { id: 1, nome: "Notebook", preco: 3500, categoria: "Informática" },
-    { id: 2, nome: "Mouse", preco: 150, categoria: "Informática" }
+// Dados iniciais (Mínimo 10 registros)
+let jogos = [
+    { id: 1, titulo: "The Witcher 3", plataforma: "PC", ano: 2015, genero: "RPG" },
+    { id: 2, titulo: "Elden Ring", plataforma: "PS5", ano: 2022, genero: "Souls-like" },
+    { id: 3, titulo: "Zelda: Breath of the Wild", plataforma: "Switch", ano: 2017, genero: "Aventura" },
+    { id: 4, titulo: "God of War Ragnarok", plataforma: "PS5", ano: 2022, genero: "Ação" },
+    { id: 5, titulo: "Cyberpunk 2077", plataforma: "PC", ano: 2020, genero: "RPG" },
+    { id: 6, titulo: "Hollow Knight", plataforma: "PC", ano: 2017, genero: "Metroidvania" },
+    { id: 7, titulo: "Red Dead Redemption 2", plataforma: "Xbox", ano: 2018, genero: "Mundo Aberto" },
+    { id: 8, titulo: "Mario Odyssey", plataforma: "Switch", ano: 2017, genero: "Plataforma" },
+    { id: 9, titulo: "Minecraft", plataforma: "Multi", ano: 2011, genero: "Sandbox" },
+    { id: 10, titulo: "Final Fantasy VII Rebirth", plataforma: "PS5", ano: 2024, genero: "RPG" }
 ];
 
-let proximoId = 3;
+let proximoId = 11;
 
-// POST
-app.post('/api/produtos', (req, res) => {
-    const { nome, preco, categoria } = req.body;
+// --- ENDPOINTS ---
 
-    const precoNum = Number(preco);
+// GET: Listar com Filtros, Ordenação e Paginação
+app.get('/api/jogos', (req, res) => {
+    let { genero, plataforma, ordem, direcao, pagina = 1, limite = 5 } = req.query;
+    let resultado = [...jogos];
 
-    // VALIDAÇÕES
-    if (!nome || nome.trim() === "") {
-        return res.status(400).json({ erro: "Nome é obrigatório" });
+    // Filtros
+    if (genero) {
+        resultado = resultado.filter(j => j.genero.toLowerCase() === genero.toLowerCase());
+    }
+    if (plataforma) {
+        resultado = resultado.filter(j => j.plataforma.toLowerCase() === plataforma.toLowerCase());
     }
 
-    if (isNaN(precoNum) || precoNum <= 0) {
-        return res.status(400).json({ erro: "Preço deve ser um número maior que 0" });
-    }
-
-    if (!categoria || categoria.trim() === "") {
-        return res.status(400).json({ erro: "Categoria é obrigatória" });
-    }
-
-    const novoProduto = {
-        id: proximoId++,
-        nome: nome.trim(),
-        preco: precoNum,
-        categoria: categoria.trim()
-    };
-
-    produtos.push(novoProduto);
-
-    res.status(201).json(novoProduto);
-});
-
-// GET (lista com filtros, ordenação e paginação)
-app.get('/api/produtos', (req, res) => {
-    const { categoria, preco_max, preco_min, ordem, direcao, pagina = 1, limite = 10 } = req.query;
-
-    let resultado = [...produtos];
-
-    // FILTROS
-    if (categoria) {
-        resultado = resultado.filter(p =>
-            p.categoria.toLowerCase() === categoria.toLowerCase()
-        );
-    }
-
-    if (preco_max) {
-        resultado = resultado.filter(p => p.preco <= Number(preco_max));
-    }
-
-    if (preco_min) {
-        resultado = resultado.filter(p => p.preco >= Number(preco_min));
-    }
-
-    // ORDENAÇÃO
-    if (ordem) {
+    // Ordenação
+    if (ordem === 'ano' || ordem === 'titulo') {
         resultado.sort((a, b) => {
-            if (ordem === 'preco') {
-                return direcao === 'desc' ? b.preco - a.preco : a.preco - b.preco;
-            }
-            if (ordem === 'nome') {
-                return direcao === 'desc'
-                    ? b.nome.localeCompare(a.nome)
-                    : a.nome.localeCompare(b.nome);
-            }
-            return 0;
+            const valA = a[ordem];
+            const valB = b[ordem];
+            if (direcao === 'desc') return valA < valB ? 1 : -1;
+            return valA > valB ? 1 : -1;
         });
     }
 
-    // PAGINAÇÃO (com segurança)
-    const paginaNum = Math.max(1, parseInt(pagina) || 1);
-    const limiteNum = Math.max(1, parseInt(limite) || 10);
-
-    const inicio = (paginaNum - 1) * limiteNum;
-    const paginado = resultado.slice(inicio, inicio + limiteNum);
+    // Paginação
+    const pag = parseInt(pagina);
+    const lim = parseInt(limite);
+    const inicio = (pag - 1) * lim;
+    const final = inicio + lim;
 
     res.json({
-        dados: paginado,
-        paginacao: {
-            pagina_atual: paginaNum,
-            itens_por_pagina: limiteNum,
-            total_itens: resultado.length,
-            total_paginas: Math.ceil(resultado.length / limiteNum)
-        }
+        total: resultado.length,
+        pagina: pag,
+        limite: lim,
+        dados: resultado.slice(inicio, final)
     });
 });
 
 // GET por ID
-app.get('/api/produtos/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const produto = produtos.find(p => p.id === id);
-
-    if (!produto) {
-        return res.status(404).json({ erro: "Produto não encontrado" });
-    }
-
-    res.json(produto);
+app.get('/api/jogos/:id', (req, res) => {
+    const jogo = jogos.find(j => j.id === parseInt(req.params.id));
+    if (!jogo) return res.status(404).json({ erro: "Jogo não encontrado." });
+    res.json(jogo);
 });
 
-// PUT (atualizar produto)
-app.put('/api/produtos/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const produto = produtos.find(p => p.id === id);
+// POST: Criar Jogo
+app.post('/api/jogos', (req, res) => {
+    const { titulo, plataforma, ano, genero } = req.body;
 
-    if (!produto) {
-        return res.status(404).json({ erro: "Produto não encontrado" });
-    }
+    // Validações
+    if (!titulo || titulo.trim().length < 2) 
+        return res.status(400).json({ erro: "Título inválido (mínimo 2 caracteres)." });
+    if (!plataforma) 
+        return res.status(400).json({ erro: "Plataforma é obrigatória." });
+    if (!ano || isNaN(ano) || ano < 1950 || ano > 2030) 
+        return res.status(400).json({ erro: "Ano deve ser entre 1950 e 2030." });
 
-    const { nome, preco, categoria } = req.body;
+    const novoJogo = {
+        id: proximoId++,
+        titulo: titulo.trim(),
+        plataforma: plataforma.trim(),
+        ano: parseInt(ano),
+        genero: genero || "Não informado"
+    };
 
-    if (nome) produto.nome = nome.trim();
-
-    if (preco !== undefined) {
-        const precoNum = Number(preco);
-        if (isNaN(precoNum) || precoNum <= 0) {
-            return res.status(400).json({ erro: "Preço inválido" });
-        }
-        produto.preco = precoNum;
-    }
-
-    if (categoria) produto.categoria = categoria.trim();
-
-    res.json(produto);
+    jogos.push(novoJogo);
+    res.status(201).json(novoJogo);
 });
 
-// DELETE
-app.delete('/api/produtos/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const index = produtos.findIndex(p => p.id === id);
+// PUT: Atualizar Jogo
+app.put('/api/jogos/:id', (req, res) => {
+    const index = jogos.findIndex(j => j.id === parseInt(req.params.id));
+    if (index === -1) return res.status(404).json({ erro: "Jogo não encontrado." });
 
-    if (index === -1) {
-        return res.status(404).json({ erro: "Produto não encontrado" });
-    }
+    const { titulo, plataforma, ano, genero } = req.body;
 
-    produtos.splice(index, 1);
+    // Validação de dados recebidos (se existirem)
+    if (ano && (isNaN(ano) || ano < 1950)) 
+        return res.status(400).json({ erro: "Ano inválido." });
 
-    res.json({ mensagem: "Produto removido com sucesso" });
+    jogos[index] = {
+        ...jogos[index],
+        ...(titulo && { titulo: titulo.trim() }),
+        ...(plataforma && { plataforma: plataforma.trim() }),
+        ...(ano && { ano: parseInt(ano) }),
+        ...(genero && { genero: genero.trim() })
+    };
+
+    res.json(jogos[index]);
 });
 
-// Iniciar servidor
+// DELETE: Remover Jogo
+app.delete('/api/jogos/:id', (req, res) => {
+    const index = jogos.findIndex(j => j.id === parseInt(req.params.id));
+    if (index === -1) return res.status(404).json({ erro: "Jogo não encontrado." });
+
+    jogos.splice(index, 1);
+    res.json({ mensagem: "Jogo removido com sucesso." });
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+    console.log(`🚀 Games API rodando em http://localhost:${PORT}`);
 });
