@@ -1,42 +1,42 @@
 const express = require('express');
 const app = express();
-const PORT = 3000; // Alterado para 3000 para evitar conflitos comuns na porta 80
+const PORT = 3000;
 
 app.use(express.json());
 
-// Dados iniciais (Mínimo 10 registros)
-let jogos = [
-    { id: 1, titulo: "The Witcher 3", plataforma: "PC", ano: 2015, genero: "RPG" },
-    { id: 2, titulo: "Elden Ring", plataforma: "PS5", ano: 2022, genero: "Souls-like" },
-    { id: 3, titulo: "Zelda: Breath of the Wild", plataforma: "Switch", ano: 2017, genero: "Aventura" },
-    { id: 4, titulo: "God of War Ragnarok", plataforma: "PS5", ano: 2022, genero: "Ação" },
-    { id: 5, titulo: "Cyberpunk 2077", plataforma: "PC", ano: 2020, genero: "RPG" },
-    { id: 6, titulo: "Hollow Knight", plataforma: "PC", ano: 2017, genero: "Metroidvania" },
-    { id: 7, titulo: "Red Dead Redemption 2", plataforma: "Xbox", ano: 2018, genero: "Mundo Aberto" },
-    { id: 8, titulo: "Mario Odyssey", plataforma: "Switch", ano: 2017, genero: "Plataforma" },
-    { id: 9, titulo: "Minecraft", plataforma: "Multi", ano: 2011, genero: "Sandbox" },
-    { id: 10, titulo: "Final Fantasy VII Rebirth", plataforma: "PS5", ano: 2024, genero: "RPG" }
+// 1. Dados em memória (Mínimo 10 registros iniciais)
+let produtos = [
+    { id: 1, nome: "Smartphone Samsung S24", preco: 5400, categoria: "Celulares", estoque: 15 },
+    { id: 2, nome: "Mouse Gamer Logitech", preco: 250, categoria: "Periféricos", estoque: 50 },
+    { id: 3, nome: "Monitor 24pol Dell", preco: 1200, categoria: "Monitores", estoque: 8 },
+    { id: 4, nome: "Teclado Mecânico RGB", preco: 450, categoria: "Periféricos", estoque: 20 },
+    { id: 5, nome: "MacBook Air M2", preco: 9800, categoria: "Notebooks", estoque: 5 },
+    { id: 6, nome: "Headset HyperX Cloud", preco: 390, categoria: "Áudio", estoque: 30 },
+    { id: 7, nome: "Placa de Vídeo RTX 4060", preco: 2100, categoria: "Hardware", estoque: 12 },
+    { id: 8, nome: "Cadeira Ergonômica", preco: 1500, categoria: "Móveis", estoque: 10 },
+    { id: 9, nome: "SSD NVMe 1TB", preco: 550, categoria: "Hardware", estoque: 45 },
+    { id: 10, nome: "Webcam Full HD Pro", preco: 320, categoria: "Periféricos", estoque: 18 }
 ];
 
 let proximoId = 11;
 
-// --- ENDPOINTS ---
+// --- ENDPOINTS CRUD ---
 
-// GET: Listar com Filtros, Ordenação e Paginação
-app.get('/api/jogos', (req, res) => {
-    let { genero, plataforma, ordem, direcao, pagina = 1, limite = 5 } = req.query;
-    let resultado = [...jogos];
+// [GET] Listar Produtos com Filtros, Ordenação e Paginação
+app.get('/api/produtos', (req, res) => {
+    let { categoria, preco_max, ordem, direcao, pagina = 1, limite = 5 } = req.query;
+    let resultado = [...produtos];
 
     // Filtros
-    if (genero) {
-        resultado = resultado.filter(j => j.genero.toLowerCase() === genero.toLowerCase());
+    if (categoria) {
+        resultado = resultado.filter(p => p.categoria.toLowerCase() === categoria.toLowerCase());
     }
-    if (plataforma) {
-        resultado = resultado.filter(j => j.plataforma.toLowerCase() === plataforma.toLowerCase());
+    if (preco_max) {
+        resultado = resultado.filter(p => p.preco <= Number(preco_max));
     }
 
     // Ordenação
-    if (ordem === 'ano' || ordem === 'titulo') {
+    if (ordem === 'preco' || ordem === 'nome') {
         resultado.sort((a, b) => {
             const valA = a[ordem];
             const valB = b[ordem];
@@ -46,81 +46,79 @@ app.get('/api/jogos', (req, res) => {
     }
 
     // Paginação
-    const pag = parseInt(pagina);
-    const lim = parseInt(limite);
-    const inicio = (pag - 1) * lim;
-    const final = inicio + lim;
+    const pagNum = parseInt(pagina);
+    const limNum = parseInt(limite);
+    const inicio = (pagNum - 1) * limNum;
+    const final = inicio + limNum;
 
     res.json({
-        total: resultado.length,
-        pagina: pag,
-        limite: lim,
+        total_itens: resultado.length,
+        total_paginas: Math.ceil(resultado.length / limNum),
+        pagina_atual: pagNum,
         dados: resultado.slice(inicio, final)
     });
 });
 
-// GET por ID
-app.get('/api/jogos/:id', (req, res) => {
-    const jogo = jogos.find(j => j.id === parseInt(req.params.id));
-    if (!jogo) return res.status(404).json({ erro: "Jogo não encontrado." });
-    res.json(jogo);
+// [GET] Buscar por ID
+app.get('/api/produtos/:id', (req, res) => {
+    const produto = produtos.find(p => p.id === parseInt(req.params.id));
+    if (!produto) return res.status(404).json({ erro: "Produto não encontrado." });
+    res.json(produto);
 });
 
-// POST: Criar Jogo
-app.post('/api/jogos', (req, res) => {
-    const { titulo, plataforma, ano, genero } = req.body;
+// [POST] Criar Novo Produto
+app.post('/api/produtos', (req, res) => {
+    const { nome, preco, categoria, estoque } = req.body;
 
     // Validações
-    if (!titulo || titulo.trim().length < 2) 
-        return res.status(400).json({ erro: "Título inválido (mínimo 2 caracteres)." });
-    if (!plataforma) 
-        return res.status(400).json({ erro: "Plataforma é obrigatória." });
-    if (!ano || isNaN(ano) || ano < 1950 || ano > 2030) 
-        return res.status(400).json({ erro: "Ano deve ser entre 1950 e 2030." });
+    if (!nome || nome.trim().length < 3) 
+        return res.status(400).json({ erro: "O nome deve ter no mínimo 3 caracteres." });
+    if (!preco || isNaN(preco) || preco <= 0) 
+        return res.status(400).json({ erro: "O preço deve ser um número positivo." });
+    if (!categoria) 
+        return res.status(400).json({ erro: "A categoria é obrigatória." });
 
-    const novoJogo = {
+    const novo = {
         id: proximoId++,
-        titulo: titulo.trim(),
-        plataforma: plataforma.trim(),
-        ano: parseInt(ano),
-        genero: genero || "Não informado"
+        nome: nome.trim(),
+        preco: Number(preco),
+        categoria: categoria.trim(),
+        estoque: parseInt(estoque) || 0
     };
 
-    jogos.push(novoJogo);
-    res.status(201).json(novoJogo);
+    produtos.push(novo);
+    res.status(201).json(novo);
 });
 
-// PUT: Atualizar Jogo
-app.put('/api/jogos/:id', (req, res) => {
-    const index = jogos.findIndex(j => j.id === parseInt(req.params.id));
-    if (index === -1) return res.status(404).json({ erro: "Jogo não encontrado." });
+// [PUT] Atualizar Produto
+app.put('/api/produtos/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = produtos.findIndex(p => p.id === id);
 
-    const { titulo, plataforma, ano, genero } = req.body;
+    if (index === -1) return res.status(404).json({ erro: "Produto não encontrado." });
 
-    // Validação de dados recebidos (se existirem)
-    if (ano && (isNaN(ano) || ano < 1950)) 
-        return res.status(400).json({ erro: "Ano inválido." });
+    const { nome, preco, categoria, estoque } = req.body;
 
-    jogos[index] = {
-        ...jogos[index],
-        ...(titulo && { titulo: titulo.trim() }),
-        ...(plataforma && { plataforma: plataforma.trim() }),
-        ...(ano && { ano: parseInt(ano) }),
-        ...(genero && { genero: genero.trim() })
-    };
+    // Atualização Parcial
+    if (nome) produtos[index].nome = nome.trim();
+    if (preco && !isNaN(preco)) produtos[index].preco = Number(preco);
+    if (categoria) produtos[index].categoria = categoria.trim();
+    if (estoque !== undefined) produtos[index].estoque = parseInt(estoque);
 
-    res.json(jogos[index]);
+    res.json(produtos[index]);
 });
 
-// DELETE: Remover Jogo
-app.delete('/api/jogos/:id', (req, res) => {
-    const index = jogos.findIndex(j => j.id === parseInt(req.params.id));
-    if (index === -1) return res.status(404).json({ erro: "Jogo não encontrado." });
+// [DELETE] Remover Produto
+app.delete('/api/produtos/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = produtos.findIndex(p => p.id === id);
 
-    jogos.splice(index, 1);
-    res.json({ mensagem: "Jogo removido com sucesso." });
+    if (index === -1) return res.status(404).json({ erro: "Produto não encontrado." });
+
+    produtos.splice(index, 1);
+    res.json({ mensagem: "Produto removido com sucesso." });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Games API rodando em http://localhost:${PORT}`);
+    console.log(`🚀 API de Produtos rodando em http://localhost:${PORT}`);
 });
