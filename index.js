@@ -4,7 +4,6 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// 1. Dados em memória (Mínimo 10 registros iniciais)
 let produtos = [
     { id: 1, nome: "Smartphone Samsung S24", preco: 5400, categoria: "Celulares", estoque: 15 },
     { id: 2, nome: "Mouse Gamer Logitech", preco: 250, categoria: "Periféricos", estoque: 50 },
@@ -20,14 +19,12 @@ let produtos = [
 
 let proximoId = 11;
 
-// --- ENDPOINTS CRUD ---
 
-// [GET] Listar Produtos com Filtros, Ordenação e Paginação
 app.get('/api/produtos', (req, res) => {
     let { categoria, preco_max, ordem, direcao, pagina = 1, limite = 5 } = req.query;
     let resultado = [...produtos];
 
-    // Filtros
+
     if (categoria) {
         resultado = resultado.filter(p => p.categoria.toLowerCase() === categoria.toLowerCase());
     }
@@ -35,7 +32,6 @@ app.get('/api/produtos', (req, res) => {
         resultado = resultado.filter(p => p.preco <= Number(preco_max));
     }
 
-    // Ordenação
     if (ordem === 'preco' || ordem === 'nome') {
         resultado.sort((a, b) => {
             const valA = a[ordem];
@@ -45,7 +41,6 @@ app.get('/api/produtos', (req, res) => {
         });
     }
 
-    // Paginação
     const pagNum = parseInt(pagina);
     const limNum = parseInt(limite);
     const inicio = (pagNum - 1) * limNum;
@@ -59,18 +54,17 @@ app.get('/api/produtos', (req, res) => {
     });
 });
 
-// [GET] Buscar por ID
+
 app.get('/api/produtos/:id', (req, res) => {
     const produto = produtos.find(p => p.id === parseInt(req.params.id));
     if (!produto) return res.status(404).json({ erro: "Produto não encontrado." });
     res.json(produto);
 });
 
-// [POST] Criar Novo Produto
 app.post('/api/produtos', (req, res) => {
     const { nome, preco, categoria, estoque } = req.body;
 
-    // Validações
+
     if (!nome || nome.trim().length < 3) 
         return res.status(400).json({ erro: "O nome deve ter no mínimo 3 caracteres." });
     if (!preco || isNaN(preco) || preco <= 0) 
@@ -90,7 +84,6 @@ app.post('/api/produtos', (req, res) => {
     res.status(201).json(novo);
 });
 
-// [PUT] Atualizar Produto
 app.put('/api/produtos/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const index = produtos.findIndex(p => p.id === id);
@@ -99,7 +92,6 @@ app.put('/api/produtos/:id', (req, res) => {
 
     const { nome, preco, categoria, estoque } = req.body;
 
-    // Atualização Parcial
     if (nome) produtos[index].nome = nome.trim();
     if (preco && !isNaN(preco)) produtos[index].preco = Number(preco);
     if (categoria) produtos[index].categoria = categoria.trim();
@@ -108,7 +100,6 @@ app.put('/api/produtos/:id', (req, res) => {
     res.json(produtos[index]);
 });
 
-// [DELETE] Remover Produto
 app.delete('/api/produtos/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const index = produtos.findIndex(p => p.id === id);
